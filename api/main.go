@@ -17,29 +17,28 @@ type HTTPError struct {
 	Message string `json:"message"`
 }
 
-// HelloServer the web server
-func HelloServer(w http.ResponseWriter, r *http.Request) {
+// GetAccount アカウント取得
+func GetAccount(w http.ResponseWriter, r *http.Request) {
 	account := Account{
 		ID:   1,
 		Name: "アカウント1",
 	}
-	res, err := json.Marshal(account)
+	respondJSON(w, http.StatusOK, account)
+}
+
+func respondJSON(w http.ResponseWriter, status int, payload interface{}) {
+	response, err := json.Marshal(payload)
 	if err != nil {
-		er := HTTPError{
-			Message: err.Error(),
-		}
-		erres, _ := json.Marshal(er)
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write(erres)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+	w.WriteHeader(status)
+	w.Write(response)
 }
 
 func main() {
-	http.HandleFunc("/hello", HelloServer)
+	http.HandleFunc("/account", GetAccount)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
