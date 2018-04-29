@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -19,6 +20,13 @@ type HTTPError struct {
 
 // GetAccount アカウント取得
 func GetAccount(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		er := HTTPError{
+			Message: fmt.Sprintf("Not allowed method: %s", r.Method),
+		}
+		respondJSON(w, http.StatusMethodNotAllowed, er)
+		return
+	}
 	account := Account{
 		ID:   1,
 		Name: "アカウント1",
