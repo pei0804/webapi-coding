@@ -12,6 +12,11 @@ type Account struct {
 	Name string `json:"name"`
 }
 
+// HTTPError エラー
+type HTTPError struct {
+	Message string `json:"message"`
+}
+
 // HelloServer the web server
 func HelloServer(w http.ResponseWriter, r *http.Request) {
 	account := Account{
@@ -20,7 +25,14 @@ func HelloServer(w http.ResponseWriter, r *http.Request) {
 	}
 	res, err := json.Marshal(account)
 	if err != nil {
-		panic(err)
+		er := HTTPError{
+			Message: err.Error(),
+		}
+		erres, _ := json.Marshal(er)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write(erres)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
